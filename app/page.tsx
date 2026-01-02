@@ -24,7 +24,7 @@ export default async function HomePage() {
       <Header />
 
       {/* Page Background – SAME AS LOGIN */}
-      <main className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      <main className="min-h-screen overflow-y-auto bg-gradient-to-br from-blue-50 to-indigo-100">
         <div className="max-w-7xl mx-auto px-4 py-10">
           {/* Header Row */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-10">
