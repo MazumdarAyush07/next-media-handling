@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { Home, User } from "lucide-react";
 import { useNotification } from "./Notification";
 import { useState } from "react";
@@ -10,12 +11,15 @@ export default function Header() {
   const { data: session } = useSession();
   const { showNotification } = useNotification();
   const [open, setOpen] = useState(false);
+  const router = useRouter();
 
   const handleSignOut = async () => {
     try {
       await signOut({ redirect: false });
       showNotification("Signed out successfully", "success");
       setOpen(false);
+
+      router.replace("/login");
     } catch {
       showNotification("Failed to sign out", "error");
     }
