@@ -117,32 +117,31 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "Missing videoId" }, { status: 400 });
     }
 
-    const existingLike = await Like.findOne({
+    await Like.findOneAndDelete({
       user: session.user.id,
       video: videoId,
     });
 
-    if (!existingLike) {
-      return NextResponse.json(
-        { error: "You have not liked this video" },
-        { status: 400 }
-      );
-    }
-
-    await Like.deleteOne({ _id: existingLike._id });
-
-    const updatedVideo = await Video.findByIdAndUpdate(videoId, {
-      $inc: { likesCount: -1 },
-      $max: { likesCount: 0 },
-    });
+    await Video.updateOne(
+      { _id: videoId },
+      [
+        {
+          $set: {
+            likesCount: {
+              $max: [{ $subtract: ["$likesCount", 1] }, 0],
+            },
+          },
+        },
+      ],
+      { updatePipeline: true } 
+    );
 
     return NextResponse.json(
-      {
-        message: "Like removed successfully",
-      },
+      { message: "Like removed successfully" },
       { status: 200 }
     );
   } catch (error) {
+    console.error("DELETE LIKE ERROR:", error);
     return NextResponse.json(
       { error: "Failed to remove like" },
       { status: 500 }
