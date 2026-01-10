@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useSession } from "next-auth/react";
 
 interface Comment {
   _id: string;
@@ -31,6 +32,8 @@ export default function CommentSheet({
   const [translateY, setTranslateY] = useState(0);
 
   const startY = useRef<number | null>(null);
+  const { data: session } = useSession();
+  const currentUserId = session?.user?.id;
 
   useEffect(() => {
     fetch(`/api/comment?videoId=${videoId}`, {
@@ -144,12 +147,14 @@ export default function CommentSheet({
               </p>
               <p className="text-sm text-gray-700">{c.content}</p>
 
-              <button
-                onClick={() => deleteComment(c._id)}
-                className="text-xs text-red-500 hover:text-red-600"
-              >
-                Delete
-              </button>
+              {currentUserId === c.user._id && (
+                <button
+                  onClick={() => deleteComment(c._id)}
+                  className="text-xs text-red-500 hover:text-red-600"
+                >
+                  Delete
+                </button>
+              )}
             </div>
           ))}
         </div>
