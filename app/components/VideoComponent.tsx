@@ -23,7 +23,9 @@ export default function VideoComponent({
 
   const videoPath = getImageKitPath(video.videoUrl);
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const tapTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  const [showHeart, setShowHeart] = useState(false);
   const [paused, setPaused] = useState(false);
   const [showPlayIcon, setShowPlayIcon] = useState(false);
   const [liked, setLiked] = useState(false);
@@ -109,6 +111,29 @@ export default function VideoComponent({
     setTimeout(() => setShowPlayIcon(false), 700);
   }
 
+  function handleTap() {
+    // SECOND TAP (double tap)
+    if (tapTimeoutRef.current) {
+      clearTimeout(tapTimeoutRef.current);
+      tapTimeoutRef.current = null;
+
+      // ❤️ DOUBLE TAP ACTION
+      if (!liked) {
+        toggleLike();
+      }
+
+      setShowHeart(true);
+      setTimeout(() => setShowHeart(false), 600);
+      return;
+    }
+
+    // FIRST TAP — wait to see if another tap comes
+    tapTimeoutRef.current = setTimeout(() => {
+      togglePlayPause(); // ▶️ / ⏸️ SINGLE TAP ACTION
+      tapTimeoutRef.current = null;
+    }, 250);
+  }
+
   return (
     <div
       ref={containerRef}
@@ -116,7 +141,7 @@ export default function VideoComponent({
                  h-[85vh]
                  bg-black rounded-2xl
                  shadow-xl overflow-hidden"
-      onClick={togglePlayPause}
+      onClick={handleTap}
     >
       {/* Video */}
       <IKVideo
@@ -171,6 +196,12 @@ export default function VideoComponent({
           <div className="bg-black/60 rounded-full p-4">
             <span className="text-white text-4xl">{paused ? "▶️" : "⏸️"}</span>
           </div>
+        </div>
+      )}
+
+      {showHeart && (
+        <div className="absolute inset-0 z-40 flex items-center justify-center pointer-events-none">
+          <span className="text-white text-7xl animate-heart-pop">❤️</span>
         </div>
       )}
 
